@@ -1,0 +1,16 @@
+# Ignore the Dockerfile context we don’t need
+node_modules
+vendor
+build
+npm-debug.log
+.dockerignore
+.git
+.gitignore
+composer.lock
+package-lock.json
+README.md
+.idea
+.vscode
+*.log
+.env
+wp-content/uploads
