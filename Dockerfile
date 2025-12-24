@@ -1,30 +1,29 @@
 FROM wordpress:php8.2-apache
 
-# Install system dependencies
+# 1. Install system dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl zip less nano \
+    ca-certificates gnupg \
     libzip-dev libonig-dev libpng-dev libicu-dev libxml2-dev \
-    && docker-php-ext-install \
-    zip intl gd \
-    && apt-get clean \
+    && docker-php-ext-install zip intl gd \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 18 + npm
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g npm@latest yarn
-	
-	
-# Set npm cache directory
-ENV NPM_CONFIG_CACHE=/root/.npm	
+# 2. Install STABLE Node.js (LTS)
+# Using 'setup_lts.x' ensures you get the most reliable version (currently v24)
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php \
-    -- --install-dir=/usr/local/bin --filename=composer
+# 3. Verify installations
+RUN node -v && npm -v
 
-# Install WP-CLI
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod +x wp-cli.phar && \
-    mv wp-cli.phar /usr/local/bin/wp
+# 4. Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# 5. Install WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp \
+    && echo "alias wp='wp --allow-root'" >> ~/.bashrc
 
 WORKDIR /var/www/html

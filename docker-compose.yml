@@ -8,19 +8,18 @@ services:
       - "8000:80"
     volumes:
       - ./wp-content:/var/www/html/wp-content
-      - ./wp-config.php:/var/www/html/wp-config.php
       - node_modules:/var/www/html/wp-content/plugins/my-awesome-plugin/node_modules
-    
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
-    
     depends_on:
       - db
+
   db:
-    image: mysql:5.7
+    # MariaDB is much more stable on Mac M1/M2/M3 than MySQL 5.7
+    image: mariadb:10.6
     container_name: wordpress_db
     restart: always
     environment:
@@ -44,4 +43,3 @@ services:
 volumes:
   db_data:
   node_modules:
-
